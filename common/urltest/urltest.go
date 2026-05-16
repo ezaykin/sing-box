@@ -8,6 +8,7 @@ import (
 	"net/url"
 	"sync"
 	"time"
+	"fmt"
 
 	"github.com/sagernet/sing-box/adapter"
 	C "github.com/sagernet/sing-box/constant"
@@ -124,7 +125,13 @@ func URLTest(ctx context.Context, link string, detour N.Dialer) (t uint16, err e
 	if err != nil {
 		return
 	}
-	resp.Body.Close()
+	defer resp.Body.Close()
+	
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		err = fmt.Errorf("unexpected status code: %d, expected 204", resp.StatusCode)
+		return
+	}
+	
 	t = uint16(time.Since(start) / time.Millisecond)
 	return
 }
